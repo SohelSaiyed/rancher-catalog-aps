@@ -1,9 +1,0 @@
----
-name: Demo App
-description: >
-  testing app for catalog.
-version: v0.1
-category: Testing
-maintainer: Sohel Saiyed <sohel.saiyed@alfresco.com>
-license: Apache2
-projectURL: https://github.com/SohelSaiyed/rancher-catalog-aps
