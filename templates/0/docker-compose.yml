@@ -1,0 +1,50 @@
+version: '2'
+
+services:
+  proxy:
+      image: rancher/lb-service-haproxy:v0.5.9
+      links:
+      - process:process
+      ports:
+      - 80:80/tcp
+      labels:
+        io.rancher.scheduler.affinity:host_label: ${host_label}
+        io.rancher.container.agent.role: environmentAdmin
+        io.rancher.container.create_agent: 'true'
+  process:
+    image: alfresco/process-services:${aps_version}
+    environment:
+      ACTIVITI_DATASOURCE_USERNAME: alfresco
+      ACTIVITI_DATASOURCE_PASSWORD: alfresco
+      ACTIVITI_DATASOURCE_DRIVER: org.postgresql.Driver
+      ACTIVITI_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      ACTIVITI_DATASOURCE_URL: 'jdbc:postgresql://postgres:5432/activiti?characterEncoding=UTF-8'
+      ACTIVITI_CSRF_DISABLED: 'true'
+      ACTIVITI_CORS_ENABLED: 'true'
+      ACTIVITI_ES_SERVER_TYPE: client
+      ACTIVITI_ES_DISCOVERY_HOSTS: elasticsearch:9300
+      ACTIVITI_ES_CLUSTER_NAME: elasticsearch
+    #volumes:
+    # - "~/.activiti/enterprise-license:/root/.activiti/enterprise-license/:ro"
+    ports:
+    - 9999:8080
+    links:
+      - elasticsearch:elasticsearch
+      - postgres:postgres
+    depends_on:
+      - elasticsearch
+      - postgres
+    labels:
+      io.rancher.scheduler.affinity:host_label: ${host_label}
+  elasticsearch:
+    image: elasticsearch:1.7.3
+    labels:
+      io.rancher.scheduler.affinity:host_label: ${host_label}
+  postgres:
+    image: postgres:9.6.2
+    environment:
+      POSTGRES_DB: activiti
+      POSTGRES_USER: alfresco
+      POSTGRES_PASSWORD: alfresco
+    labels:
+      io.rancher.scheduler.affinity:host_label: ${host_label}
